@@ -49,8 +49,28 @@ import (
 	"strings"
 
 	nats "github.com/nats-io/go-nats"
-	"gitlab.com/dc0d/tune/pile"
 )
+
+func polishKindName(name string, take, drop int) string {
+	ix := strings.LastIndex(name, "/")
+	if ix > 0 && (ix+1) < len(name) {
+		name = name[ix+1:]
+	}
+	rp := strings.NewReplacer("(", "", ")", "", "*", "")
+	name = rp.Replace(name)
+	parts := strings.Split(name, ".")
+	if take < 0 {
+		take = 0
+	}
+	if take < len(parts) {
+		parts = parts[(len(parts) - take):]
+	}
+	if drop > 0 && drop < len(parts) {
+		parts = parts[:(len(parts) - drop)]
+	}
+	name = strings.Join(parts, ".")
+	return name
+}
 
 type serviceMessage struct {
 	queue                    bool
@@ -84,7 +104,7 @@ func getMessages(service interface{}) []serviceMessage {
 		sm := serviceMessage{
 			message: val.MethodByName(m.Name).Interface(),
 			serviceName: strings.ToLower(
-				pile.PolishKindName(t.String(), 1, 0)),
+				polishKindName(t.String(), 1, 0)),
 			messageName: messageName,
 		}
 		if isMessageQueue {
