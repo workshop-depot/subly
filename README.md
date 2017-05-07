@@ -1,7 +1,7 @@
 # subly
 A lightweight subscription layer with conventions for [NATS](http://nats.io/)
 
-Package subly helps with subscribing methods on a struct type as callbacks for NATS, with some naming conventions. A sample usage would look like:
+Package subly helps with subscribing methods on a struct type as callbacks for NATS, with some naming conventions. A sample usage would look like ([from](https://github.com/dc0d/subly/blob/master/sublyusage/sublyusage_test.go)):
 
 ```go
 s := NewSubscriber(ctx, econn)
@@ -48,4 +48,4 @@ Which are NATS's conventions for callbacks.
 And the callback methods will unsubscribe from subject when context got canceled.
 
 ## status
-alpha - thinkering, in it's early stages of real world usage/feedback
+alpha - tHinkering, in it's early stages of real world usage/feedback
