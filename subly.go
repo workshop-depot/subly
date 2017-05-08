@@ -169,7 +169,8 @@ func NewSubscriber(ctx context.Context, econn *nats.EncodedConn) *Subscriber {
 	}
 }
 
-// Subscribe subscribes methods on a struct type as callbacks for NATS
+// Subscribe subscribes methods on a struct type as callbacks for NATS.
+// Message func signature must follow NATS conventions as described in package documentation.
 func (s *Subscriber) Subscribe(service interface{}) {
 	messages := getMessages(service)
 	for _, v := range messages {
@@ -190,5 +191,33 @@ func (s *Subscriber) Subscribe(service interface{}) {
 			s.econn,
 			subject,
 			v.message)
+	}
+}
+
+// SubscribeFunc subscribes methods in values of the provided map as callbacks for NATS.
+// If queue name is provided, methods will get subscribed in the queue.
+// Message func signature must follow NATS conventions as described in package documentation.
+func (s *Subscriber) SubscribeFunc(messages map[string]interface{}, queue ...string) {
+	var queueName string
+	if len(queue) > 0 {
+		queueName = queue[0]
+	}
+	for sb, m := range messages {
+		sb, m := sb, m
+		subject := sb
+		if queueName != "" {
+			qsub(
+				s.ctx,
+				s.econn,
+				queueName,
+				subject,
+				m)
+			continue
+		}
+		sub(
+			s.ctx,
+			s.econn,
+			subject,
+			m)
 	}
 }
